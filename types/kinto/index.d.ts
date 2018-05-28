@@ -26,12 +26,12 @@ declare namespace Kinto {
             list(params?: { filters: {}; }): Promise<any>;
             loadDump(records: any[]): Promise<any>;
             open(): Promise<any>;
-            prepare(mode: string, name: string | null): { transaction: any; store: any; };
+            prepare(mode: string, name: string): { transaction: any; store: any; };
             saveLastModified(lastModified: Number): Promise<any>;
         }
 
-        export function createListRequest(store: any /*IDBObjectStore*/, indexField: string | undefined, value: any, filters: Object, done: Function): any /* IDBRequest*/;
-        export function findIndexedField(filters: Object): string | undefined;
+        export function createListRequest(store: any /*IDBObjectStore*/, indexField: string, value: any, filters: Object, done: Function): any /* IDBRequest*/;
+        export function findIndexedField(filters: Object): string;
         export function transactionProxy(store: any /* IDBObjectStore*/, preloaded: any[]): Object;
         export const INDEXED_FIELDS: string[];
         export const cursorHandlers: Object;
@@ -40,7 +40,7 @@ declare namespace Kinto {
     export class SyncResultObject {
         static readonly defaults: {
             ok: boolean;
-            lastModified: Number | null;
+            lastModified: Number;
             errors: any[];
             created: any[];
             updated: any[];
