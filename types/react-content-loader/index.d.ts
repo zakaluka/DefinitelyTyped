@@ -3,7 +3,7 @@
 // Definitions by: Alaa Masoud <https://github.com/alaatm>
 //                 Sam Walsh <https://github.com/samwalshnz>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
-// TypeScript Version: 2.6
+// TypeScript Version: 2.8
 
 import * as React from 'react';
 
@@ -24,3 +24,8 @@ export interface ContentLoaderProps {
     className?: string;
 }
 export default class ContentLoader extends React.Component<ContentLoaderProps> { }
+export class Facebook extends React.Component<ContentLoaderProps> { }
+export class Instagram extends React.Component<ContentLoaderProps> { }
+export class Code extends React.Component<ContentLoaderProps> { }
+export class List extends React.Component<ContentLoaderProps> { }
+export class BulletList extends React.Component<ContentLoaderProps> { }

@@ -6,6 +6,7 @@
 //                 Chris Sinclair <https://github.com/chrissinclair>
 //                 Matt Tennison <https://github.com/matttennison>
 //                 Quentin Bouygues <https://github.com/quentinbouygues>
+//                 Fumiaki Matsushima <https://github.com/mtsmfm>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 2.2
 
@@ -165,23 +166,23 @@ declare namespace fetchMock {
     }
 
     interface MockOptionsMethodGet extends MockOptions {
-    method: 'GET';
+        method?: 'GET';
     }
 
     interface MockOptionsMethodPost extends MockOptions {
-    method: 'POST';
+        method?: 'POST';
     }
 
     interface MockOptionsMethodPut extends MockOptions {
-    method: 'PUT';
+        method?: 'PUT';
     }
 
     interface MockOptionsMethodDelete extends MockOptions {
-    method: 'DELETE';
+        method?: 'DELETE';
     }
 
     interface MockOptionsMethodHead extends MockOptions {
-    method: 'HEAD';
+        method?: 'HEAD';
     }
 
     interface FetchMockStatic {
@@ -202,6 +203,14 @@ declare namespace fetchMock {
          * @param options The route to mock
          */
         mock(options: MockOptions): this;
+
+        /**
+         * Returns a drop-in mock for fetch which can be passed to other mocking
+         * libraries. It implements the full fetch-mock api and maintains its
+         * own state independent of other instances, so tests can be run in
+         * parallel.
+         */
+        sandbox(): FetchMockSandbox;
 
         /**
          * Replaces fetch() with a stub which records its calls, grouped by
@@ -449,6 +458,14 @@ declare namespace fetchMock {
          * lot of array buffers, it can be useful to default to `false`
          */
         configure(opts: {}): void;
+    }
+
+    interface FetchMockSandbox extends FetchMockStatic {
+        /**
+         * Also callable as fetch(). Use `typeof fetch` in your code to define
+         * a field that accepts both `fetch()` and a fetch-mock sandbox.
+         */
+        (input?: string | Request , init?: RequestInit): Promise<Response>;
     }
 }
 

@@ -1,12 +1,12 @@
 // Type definitions for react-router-navigation 1.0
 // Project: https://github.com/LeoLeBras/react-router-navigation#readme
 // Definitions by: Kalle Ott <https://github.com/kaoDev>
+//                 John Reilly <https://github.com/johnnyreilly>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
-// TypeScript Version: 2.6
+// TypeScript Version: 2.8
 
 import { Component, ReactNode, ReactElement, ComponentClass } from "react";
 import { StyleProp, ViewProps, ViewStyle, TextStyle } from "react-native";
-import { TabViewAnimated, TabViewPagerPan } from "react-native-tab-view";
 import { RouteProps } from "react-router-navigation-core";
 import {
     NavigationTransitionProps,

@@ -50,7 +50,7 @@ pino({
 });
 
 pino({ base: null });
-pino({ base: { foo: 'bar' } });
+pino({ base: { foo: 'bar' } , changeLevelName: 'severity' });
 
 if ('pino' in log) console.log(`pino version: ${log.pino}`);
 
@@ -93,3 +93,10 @@ log.level = 'info';
 
 pino.levels.values.error === 50;
 pino.levels.labels[50] === 'error';
+
+const logstderr: pino.Logger = pino(process.stderr);
+logstderr.error('on stderr instead of stdout');
+
+log.useLevelLabels = true;
+log.info('lol');
+log.level === 'info';

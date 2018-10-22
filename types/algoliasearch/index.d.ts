@@ -764,6 +764,11 @@ declare namespace algoliasearch {
      * https://github.com/algolia/algoliasearch-client-js#client-options
      */
     hosts?: { read?: string[]; write?: string[] };
+    /**
+     * enable the experimental feature: caching requests instead of responses
+     * see https://github.com/algolia/algoliasearch-client-javascript/pull/694
+     */
+    _useRequestCache?: boolean
   }
   /**
    * Interface describing options available for gettings the logs
@@ -1123,7 +1128,15 @@ declare namespace algoliasearch {
      * default: ""
      * https://github.com/algolia/algoliasearch-client-js#facets
      */
-    facets?: string;
+    facets?: string | string[];
+    /** 
+    * Force faceting to be applied after de-duplication (via the Distinct setting).
+    * When using the distinct setting in combination with faceting, facet counts may be higher than expected. 
+    * This is because the engine, by default, computes faceting before applying de-duplication (distinct). 
+    * When facetingAfterDistinct is set to true, the engine calculates faceting after the de-duplication has been applied.
+    * default ""
+    */
+    facetingAfterDistinct?: boolean;
     /**
      * Limit the number of facet values returned for each facet.
      * default: ""
@@ -1370,7 +1383,7 @@ declare namespace algoliasearch {
      * Filter the query by a set of facets.
      * https://github.com/algolia/algoliasearch-client-js#facetfilters-deprecated
      */
-    facetFilters?: string;
+    facetFilters?: string | string[]
     /**
      * If set to false, this query will not be taken into account in the analytics feature.
      * default true
@@ -1416,6 +1429,10 @@ declare namespace algoliasearch {
        * The query for the search in this facet
        */
       facetQuery: string;
+      /**
+       * The maximum number of facets to fetch
+       */
+      maxFacetHits?: number;
     }
 
     interface Response {
@@ -1770,6 +1787,14 @@ declare namespace algoliasearch {
     params: string;
     facets?: {
       [facetName: string]: { [facetValue: string]: number };
+    };
+    facets_stats?: {
+      [facetName: string]: {
+        avg: number,
+        max: number,
+        min: number,
+        sum: number,
+      };
     };
   }
 
