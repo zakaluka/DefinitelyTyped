@@ -1,7 +1,7 @@
-// Type definitions for Node.js 9.6.x
+// Type definitions for Node.js 9.6
 // Project: http://nodejs.org/
-// Definitions by: Microsoft TypeScript <http://typescriptlang.org>
-//                 DefinitelyTyped <https://github.com/DefinitelyTyped/DefinitelyTyped>
+// Definitions by: Microsoft TypeScript <https://github.com/Microsoft>
+//                 DefinitelyTyped <https://github.com/DefinitelyTyped>
 //                 Parambir Singh <https://github.com/parambirs>
 //                 Christian Vaagland Tellnes <https://github.com/tellnes>
 //                 Wilco Bakker <https://github.com/WilcoBakker>
@@ -13,7 +13,6 @@
 //                 Deividas Bakanas <https://github.com/DeividasBakanas>
 //                 Kelvin Jin <https://github.com/kjin>
 //                 Alvis HT Tang <https://github.com/alvis>
-//                 Oliver Joseph Ash <https://github.com/OliverJAsh>
 //                 Sebastian Silbermann <https://github.com/eps1lon>
 //                 Hannes Magnusson <https://github.com/Hannes-Magnusson-CK>
 //                 Alberto Schiabel <https://github.com/jkomyno>
@@ -25,6 +24,8 @@
 //                 Hoàng Văn Khải <https://github.com/KSXGitHub>
 //                 Alexander T. <https://github.com/a-tarasyuk>
 //                 Lishude <https://github.com/islishude>
+//                 Andrew Makarov <https://github.com/r3nya>
+//                 Eugene Y. Q. Shen <https://github.com/eyqs>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
 /** inspector module types */
@@ -259,12 +260,13 @@ declare var SlowBuffer: {
 // Buffer class
 type BufferEncoding = "ascii" | "utf8" | "utf16le" | "ucs2" | "base64" | "latin1" | "binary" | "hex";
 interface Buffer extends Uint8Array {
+    constructor: typeof Buffer;
     write(string: string, offset?: number, length?: number, encoding?: string): number;
     toString(encoding?: string, start?: number, end?: number): string;
     toJSON(): { type: 'Buffer', data: any[] };
-    equals(otherBuffer: Buffer): boolean;
-    compare(otherBuffer: Buffer, targetStart?: number, targetEnd?: number, sourceStart?: number, sourceEnd?: number): number;
-    copy(targetBuffer: Buffer, targetStart?: number, sourceStart?: number, sourceEnd?: number): number;
+    equals(otherBuffer: Uint8Array): boolean;
+    compare(otherBuffer: Uint8Array, targetStart?: number, targetEnd?: number, sourceStart?: number, sourceEnd?: number): number;
+    copy(targetBuffer: Uint8Array, targetStart?: number, sourceStart?: number, sourceEnd?: number): number;
     slice(start?: number, end?: number): Buffer;
     writeUIntLE(value: number, offset: number, byteLength: number, noAssert?: boolean): number;
     writeUIntBE(value: number, offset: number, byteLength: number, noAssert?: boolean): number;
@@ -306,8 +308,8 @@ interface Buffer extends Uint8Array {
     writeDoubleLE(value: number, offset: number, noAssert?: boolean): number;
     writeDoubleBE(value: number, offset: number, noAssert?: boolean): number;
     fill(value: any, offset?: number, end?: number): this;
-    indexOf(value: string | number | Buffer, byteOffset?: number, encoding?: string): number;
-    lastIndexOf(value: string | number | Buffer, byteOffset?: number, encoding?: string): number;
+    indexOf(value: string | number | Uint8Array, byteOffset?: number, encoding?: string): number;
+    lastIndexOf(value: string | number | Uint8Array, byteOffset?: number, encoding?: string): number;
     entries(): IterableIterator<[number, number]>;
     includes(value: string | number | Buffer, byteOffset?: number, encoding?: string): boolean;
     keys(): IterableIterator<number>;
@@ -412,11 +414,11 @@ declare var Buffer: {
      * @param totalLength Total length of the buffers when concatenated.
      *   If totalLength is not provided, it is read from the buffers in the list. However, this adds an additional loop to the function, so it is faster to provide the length explicitly.
      */
-    concat(list: Buffer[], totalLength?: number): Buffer;
+    concat(list: Uint8Array[], totalLength?: number): Buffer;
     /**
      * The same as buf1.compare(buf2).
      */
-    compare(buf1: Buffer, buf2: Buffer): number;
+    compare(buf1: Uint8Array, buf2: Uint8Array): number;
     /**
      * Allocates a new buffer of {size} octets.
      *
@@ -674,7 +676,7 @@ declare namespace NodeJS {
         columns?: number;
         rows?: number;
         _write(chunk: any, encoding: string, callback: Function): void;
-        _destroy(err: Error, callback: Function): void;
+        _destroy(err: Error | undefined, callback: Function): void;
         _final(callback: Function): void;
         setDefaultEncoding(encoding: string): this;
         cork(): void;
@@ -687,7 +689,7 @@ declare namespace NodeJS {
         isRaw?: boolean;
         setRawMode?(mode: boolean): void;
         _read(size: number): void;
-        _destroy(err: Error, callback: Function): void;
+        _destroy(err: Error | undefined, callback: Function): void;
         push(chunk: any, encoding?: string): boolean;
         destroy(error?: Error): void;
     }
@@ -1065,6 +1067,7 @@ declare module "http" {
         'transfer-encoding'?: string;
         'tk'?: string;
         'upgrade'?: string;
+        'user-agent'?: string;
         'vary'?: string;
         'via'?: string;
         'warning'?: string;
@@ -1227,6 +1230,7 @@ declare module "http" {
     }
 
     export class Agent {
+        maxFreeSockets: number;
         maxSockets: number;
         sockets: any;
         requests: any;
@@ -1675,6 +1679,7 @@ declare module "os" {
         netmask: string;
         mac: string;
         internal: boolean;
+        cidr: string | null;
     }
 
     export interface NetworkInterfaceInfoIPv4 extends NetworkInterfaceBase {
@@ -2040,6 +2045,9 @@ declare module "readline" {
         completer?: Completer | AsyncCompleter;
         terminal?: boolean;
         historySize?: number;
+        prompt?: string;
+        crlfDelay?: number;
+        removeHistoryDuplicates?: boolean;
     }
 
     export function createInterface(input: NodeJS.ReadableStream, output?: NodeJS.WritableStream, completer?: Completer | AsyncCompleter, terminal?: boolean): ReadLine;
@@ -2094,7 +2102,7 @@ declare module "child_process" {
         stdin: stream.Writable;
         stdout: stream.Readable;
         stderr: stream.Readable;
-        stdio: [stream.Writable, stream.Readable, stream.Readable];
+        stdio: StdioStreams;
         killed: boolean;
         pid: number;
         kill(signal?: string): void;
@@ -2156,6 +2164,12 @@ declare module "child_process" {
         prependOnceListener(event: "error", listener: (err: Error) => void): this;
         prependOnceListener(event: "exit", listener: (code: number, signal: string) => void): this;
         prependOnceListener(event: "message", listener: (message: any, sendHandle: net.Socket | net.Server) => void): this;
+    }
+
+    export interface StdioStreams extends ReadonlyArray<stream.Readable|stream.Writable> {
+        0: stream.Writable; // stdin
+        1: stream.Readable; // stdout
+        2: stream.Readable; // stderr
     }
 
     export interface MessageOptions {
@@ -2455,7 +2469,7 @@ declare module "url" {
         append(name: string, value: string): void;
         delete(name: string): void;
         entries(): IterableIterator<[string, string]>;
-        forEach(callback: (value: string, name: string) => void): void;
+        forEach(callback: (value: string, name: string, searchParams: this) => void): void;
         get(name: string): string | null;
         getAll(name: string): string[];
         has(name: string): boolean;
@@ -2523,6 +2537,12 @@ declare module "dns" {
         export function __promisify__(hostname: string, options?: LookupOptions | number): Promise<{ address: string | LookupAddress[], family?: number }>;
     }
 
+    export function lookupService(address: string, port: number, callback: (err: NodeJS.ErrnoException, hostname: string, service: string) => void): void;
+
+    export namespace lookupService {
+        export function __promisify__(address: string, port: number): Promise<{ hostname: string, service: string }>;
+    }
+
     export interface ResolveOptions {
         ttl: boolean;
     }
@@ -2536,9 +2556,21 @@ declare module "dns" {
         ttl: number;
     }
 
+    export interface AnyARecord extends RecordWithTtl {
+        type: "A";
+    }
+
+    export interface AnyAaaaRecord extends RecordWithTtl {
+        type: "AAAA";
+    }
+
     export interface MxRecord {
         priority: number;
         exchange: string;
+    }
+
+    export interface AnyMxRecord extends MxRecord {
+        type: "MX";
     }
 
     export interface NaptrRecord {
@@ -2548,6 +2580,10 @@ declare module "dns" {
         replacement: string;
         order: number;
         preference: number;
+    }
+
+    export interface AnyNaptrRecord extends NaptrRecord {
+        type: "NAPTR";
     }
 
     export interface SoaRecord {
@@ -2560,6 +2596,10 @@ declare module "dns" {
         minttl: number;
     }
 
+    export interface AnySoaRecord extends SoaRecord {
+        type: "SOA";
+    }
+
     export interface SrvRecord {
         priority: number;
         weight: number;
@@ -2567,9 +2607,45 @@ declare module "dns" {
         name: string;
     }
 
+    export interface AnySrvRecord extends SrvRecord {
+        type: "SRV";
+    }
+
+    export interface AnyTxtRecord {
+        type: "TXT";
+        entries: string[];
+    }
+
+    export interface AnyNsRecord {
+        type: "NS";
+        value: string;
+    }
+
+    export interface AnyPtrRecord {
+        type: "PTR";
+        value: string;
+    }
+
+    export interface AnyCnameRecord {
+        type: "CNAME";
+        value: string;
+    }
+
+    export type AnyRecord = AnyARecord |
+        AnyAaaaRecord |
+        AnyCnameRecord |
+        AnyMxRecord |
+        AnyNaptrRecord |
+        AnyNsRecord |
+        AnyPtrRecord |
+        AnySoaRecord |
+        AnySrvRecord |
+        AnyTxtRecord;
+
     export function resolve(hostname: string, callback: (err: NodeJS.ErrnoException, addresses: string[]) => void): void;
     export function resolve(hostname: string, rrtype: "A", callback: (err: NodeJS.ErrnoException, addresses: string[]) => void): void;
     export function resolve(hostname: string, rrtype: "AAAA", callback: (err: NodeJS.ErrnoException, addresses: string[]) => void): void;
+    export function resolve(hostname: string, rrtype: "ANY", callback: (err: NodeJS.ErrnoException, addresses: AnyRecord[]) => void): void;
     export function resolve(hostname: string, rrtype: "CNAME", callback: (err: NodeJS.ErrnoException, addresses: string[]) => void): void;
     export function resolve(hostname: string, rrtype: "MX", callback: (err: NodeJS.ErrnoException, addresses: MxRecord[]) => void): void;
     export function resolve(hostname: string, rrtype: "NAPTR", callback: (err: NodeJS.ErrnoException, addresses: NaptrRecord[]) => void): void;
@@ -2578,17 +2654,18 @@ declare module "dns" {
     export function resolve(hostname: string, rrtype: "SOA", callback: (err: NodeJS.ErrnoException, addresses: SoaRecord) => void): void;
     export function resolve(hostname: string, rrtype: "SRV", callback: (err: NodeJS.ErrnoException, addresses: SrvRecord[]) => void): void;
     export function resolve(hostname: string, rrtype: "TXT", callback: (err: NodeJS.ErrnoException, addresses: string[][]) => void): void;
-    export function resolve(hostname: string, rrtype: string, callback: (err: NodeJS.ErrnoException, addresses: string[] | MxRecord[] | NaptrRecord[] | SoaRecord | SrvRecord[] | string[][]) => void): void;
+    export function resolve(hostname: string, rrtype: string, callback: (err: NodeJS.ErrnoException, addresses: string[] | MxRecord[] | NaptrRecord[] | SoaRecord | SrvRecord[] | string[][] | AnyRecord[]) => void): void;
 
     // NOTE: This namespace provides design-time support for util.promisify. Exported members do not exist at runtime.
     export namespace resolve {
         export function __promisify__(hostname: string, rrtype?: "A" | "AAAA" | "CNAME" | "NS" | "PTR"): Promise<string[]>;
+        export function __promisify__(hostname: string, rrtype: "ANY"): Promise<AnyRecord[]>;
         export function __promisify__(hostname: string, rrtype: "MX"): Promise<MxRecord[]>;
         export function __promisify__(hostname: string, rrtype: "NAPTR"): Promise<NaptrRecord[]>;
         export function __promisify__(hostname: string, rrtype: "SOA"): Promise<SoaRecord>;
         export function __promisify__(hostname: string, rrtype: "SRV"): Promise<SrvRecord[]>;
         export function __promisify__(hostname: string, rrtype: "TXT"): Promise<string[][]>;
-        export function __promisify__(hostname: string, rrtype?: string): Promise<string[] | MxRecord[] | NaptrRecord[] | SoaRecord | SrvRecord[] | string[][]>;
+        export function __promisify__(hostname: string, rrtype: string): Promise<string[] | MxRecord[] | NaptrRecord[] | SoaRecord | SrvRecord[] | string[][] | AnyRecord[]>;
     }
 
     export function resolve4(hostname: string, callback: (err: NodeJS.ErrnoException, addresses: string[]) => void): void;
@@ -2614,16 +2691,53 @@ declare module "dns" {
     }
 
     export function resolveCname(hostname: string, callback: (err: NodeJS.ErrnoException, addresses: string[]) => void): void;
+    export namespace resolveCname {
+        export function __promisify__(hostname: string): Promise<string[]>;
+    }
+
     export function resolveMx(hostname: string, callback: (err: NodeJS.ErrnoException, addresses: MxRecord[]) => void): void;
+    export namespace resolveMx {
+        export function __promisify__(hostname: string): Promise<MxRecord[]>;
+    }
+
     export function resolveNaptr(hostname: string, callback: (err: NodeJS.ErrnoException, addresses: NaptrRecord[]) => void): void;
+    export namespace resolveNaptr {
+        export function __promisify__(hostname: string): Promise<NaptrRecord[]>;
+    }
+
     export function resolveNs(hostname: string, callback: (err: NodeJS.ErrnoException, addresses: string[]) => void): void;
+    export namespace resolveNs {
+        export function __promisify__(hostname: string): Promise<string[]>;
+    }
+
     export function resolvePtr(hostname: string, callback: (err: NodeJS.ErrnoException, addresses: string[]) => void): void;
+    export namespace resolvePtr {
+        export function __promisify__(hostname: string): Promise<string[]>;
+    }
+
     export function resolveSoa(hostname: string, callback: (err: NodeJS.ErrnoException, address: SoaRecord) => void): void;
+    export namespace resolveSoa {
+        export function __promisify__(hostname: string): Promise<SoaRecord>;
+    }
+
     export function resolveSrv(hostname: string, callback: (err: NodeJS.ErrnoException, addresses: SrvRecord[]) => void): void;
+    export namespace resolveSrv {
+        export function __promisify__(hostname: string): Promise<SrvRecord[]>;
+    }
+
     export function resolveTxt(hostname: string, callback: (err: NodeJS.ErrnoException, addresses: string[][]) => void): void;
+    export namespace resolveTxt {
+        export function __promisify__(hostname: string): Promise<string[][]>;
+    }
+
+    export function resolveAny(hostname: string, callback: (err: NodeJS.ErrnoException, addresses: AnyRecord[]) => void): void;
+    export namespace resolveAny {
+        export function __promisify__(hostname: string): Promise<AnyRecord[]>;
+    }
 
     export function reverse(ip: string, callback: (err: NodeJS.ErrnoException, hostnames: string[]) => void): void;
     export function setServers(servers: string[]): void;
+    export function getServers(): string[];
 
     // Error codes
     export var NODATA: string;
@@ -2650,6 +2764,25 @@ declare module "dns" {
     export var LOADIPHLPAPI: string;
     export var ADDRGETNETWORKPARAMS: string;
     export var CANCELLED: string;
+
+    export class Resolver {
+        getServers: typeof getServers;
+        setServers: typeof setServers;
+        resolve: typeof resolve;
+        resolve4: typeof resolve4;
+        resolve6: typeof resolve6;
+        resolveAny: typeof resolveAny;
+        resolveCname: typeof resolveCname;
+        resolveMx: typeof resolveMx;
+        resolveNaptr: typeof resolveNaptr;
+        resolveNs: typeof resolveNs;
+        resolvePtr: typeof resolvePtr;
+        resolveSoa: typeof resolveSoa;
+        resolveSrv: typeof resolveSrv;
+        resolveTxt: typeof resolveTxt;
+        reverse: typeof reverse;
+        cancel(): void;
+    }
 }
 
 declare module "net" {
@@ -3451,7 +3584,7 @@ declare module "fs" {
      * @param type May be set to `'dir'`, `'file'`, or `'junction'` (default is `'file'`) and is only available on Windows (ignored on other platforms).
      * When using `'junction'`, the `target` argument will automatically be normalized to an absolute path.
      */
-    export function symlink(target: PathLike, path: PathLike, type: string | undefined | null, callback: (err: NodeJS.ErrnoException) => void): void;
+    export function symlink(target: PathLike, path: PathLike, type: symlink.Type | undefined | null, callback: (err: NodeJS.ErrnoException) => void): void;
 
     /**
      * Asynchronous symlink(2) - Create a new symbolic link to an existing file.
@@ -3470,6 +3603,8 @@ declare module "fs" {
          * When using `'junction'`, the `target` argument will automatically be normalized to an absolute path.
          */
         export function __promisify__(target: PathLike, path: PathLike, type?: string | null): Promise<void>;
+
+        export type Type = "dir" | "file" | "junction";
     }
 
     /**
@@ -3479,7 +3614,7 @@ declare module "fs" {
      * @param type May be set to `'dir'`, `'file'`, or `'junction'` (default is `'file'`) and is only available on Windows (ignored on other platforms).
      * When using `'junction'`, the `target` argument will automatically be normalized to an absolute path.
      */
-    export function symlinkSync(target: PathLike, path: PathLike, type?: string | null): void;
+    export function symlinkSync(target: PathLike, path: PathLike, type?: symlink.Type | null): void;
 
     /**
      * Asynchronous readlink(2) - read value of a symbolic link.
@@ -5364,7 +5499,7 @@ declare module "stream" {
             encoding?: string;
             objectMode?: boolean;
             read?: (this: Readable, size?: number) => any;
-            destroy?: (error?: Error) => any;
+            destroy?: (error: Error | null, callback: (error?: Error) => void) => void;
         }
 
         export class Readable extends Stream implements NodeJS.ReadableStream {
@@ -5382,7 +5517,7 @@ declare module "stream" {
             unshift(chunk: any): void;
             wrap(oldStream: NodeJS.ReadableStream): this;
             push(chunk: any, encoding?: string): boolean;
-            _destroy(err: Error, callback: Function): void;
+            _destroy(error: Error | null, callback: (error?: Error) => void): void;
             destroy(error?: Error): void;
 
             /**
@@ -5450,7 +5585,7 @@ declare module "stream" {
             objectMode?: boolean;
             write?: (chunk: string | Buffer, encoding: string, callback: Function) => any;
             writev?: (chunks: Array<{ chunk: string | Buffer, encoding: string }>, callback: Function) => any;
-            destroy?: (error?: Error) => any;
+            destroy?: (error: Error | null, callback: (error?: Error) => void) => void;
             final?: (callback: (error?: Error) => void) => void;
         }
 
@@ -5461,7 +5596,7 @@ declare module "stream" {
             constructor(opts?: WritableOptions);
             _write(chunk: any, encoding: string, callback: (err?: Error) => void): void;
             _writev?(chunks: Array<{ chunk: any, encoding: string }>, callback: (err?: Error) => void): void;
-            _destroy(err: Error, callback: Function): void;
+            _destroy(error: Error | null, callback: (error?: Error) => void): void;
             _final(callback: Function): void;
             write(chunk: any, cb?: Function): boolean;
             write(chunk: any, encoding?: string, cb?: Function): boolean;
@@ -5554,7 +5689,7 @@ declare module "stream" {
             constructor(opts?: DuplexOptions);
             _write(chunk: any, encoding: string, callback: (err?: Error) => void): void;
             _writev?(chunks: Array<{ chunk: any, encoding: string }>, callback: (err?: Error) => void): void;
-            _destroy(err: Error, callback: Function): void;
+            _destroy(error: Error | null, callback: (error?: Error) => void): void;
             _final(callback: Function): void;
             write(chunk: any, cb?: Function): boolean;
             write(chunk: any, encoding?: string, cb?: Function): boolean;
@@ -5646,17 +5781,17 @@ declare module "util" {
 
     export function promisify<TCustom extends Function>(fn: CustomPromisify<TCustom>): TCustom;
     export function promisify<TResult>(fn: (callback: (err: Error | null, result: TResult) => void) => void): () => Promise<TResult>;
-    export function promisify(fn: (callback: (err: Error | null) => void) => void): () => Promise<void>;
+    export function promisify(fn: (callback: (err?: Error | null) => void) => void): () => Promise<void>;
     export function promisify<T1, TResult>(fn: (arg1: T1, callback: (err: Error | null, result: TResult) => void) => void): (arg1: T1) => Promise<TResult>;
-    export function promisify<T1>(fn: (arg1: T1, callback: (err: Error | null) => void) => void): (arg1: T1) => Promise<void>;
+    export function promisify<T1>(fn: (arg1: T1, callback: (err?: Error | null) => void) => void): (arg1: T1) => Promise<void>;
     export function promisify<T1, T2, TResult>(fn: (arg1: T1, arg2: T2, callback: (err: Error | null, result: TResult) => void) => void): (arg1: T1, arg2: T2) => Promise<TResult>;
-    export function promisify<T1, T2>(fn: (arg1: T1, arg2: T2, callback: (err: Error | null) => void) => void): (arg1: T1, arg2: T2) => Promise<void>;
+    export function promisify<T1, T2>(fn: (arg1: T1, arg2: T2, callback: (err?: Error | null) => void) => void): (arg1: T1, arg2: T2) => Promise<void>;
     export function promisify<T1, T2, T3, TResult>(fn: (arg1: T1, arg2: T2, arg3: T3, callback: (err: Error | null, result: TResult) => void) => void): (arg1: T1, arg2: T2, arg3: T3) => Promise<TResult>;
-    export function promisify<T1, T2, T3>(fn: (arg1: T1, arg2: T2, arg3: T3, callback: (err: Error | null) => void) => void): (arg1: T1, arg2: T2, arg3: T3) => Promise<void>;
+    export function promisify<T1, T2, T3>(fn: (arg1: T1, arg2: T2, arg3: T3, callback: (err?: Error | null) => void) => void): (arg1: T1, arg2: T2, arg3: T3) => Promise<void>;
     export function promisify<T1, T2, T3, T4, TResult>(fn: (arg1: T1, arg2: T2, arg3: T3, arg4: T4, callback: (err: Error | null, result: TResult) => void) => void): (arg1: T1, arg2: T2, arg3: T3, arg4: T4) => Promise<TResult>;
-    export function promisify<T1, T2, T3, T4>(fn: (arg1: T1, arg2: T2, arg3: T3, arg4: T4, callback: (err: Error | null) => void) => void): (arg1: T1, arg2: T2, arg3: T3, arg4: T4) => Promise<void>;
+    export function promisify<T1, T2, T3, T4>(fn: (arg1: T1, arg2: T2, arg3: T3, arg4: T4, callback: (err?: Error | null) => void) => void): (arg1: T1, arg2: T2, arg3: T3, arg4: T4) => Promise<void>;
     export function promisify<T1, T2, T3, T4, T5, TResult>(fn: (arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T5, callback: (err: Error | null, result: TResult) => void) => void): (arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T5) => Promise<TResult>;
-    export function promisify<T1, T2, T3, T4, T5>(fn: (arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T5, callback: (err: Error | null) => void) => void): (arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T5) => Promise<void>;
+    export function promisify<T1, T2, T3, T4, T5>(fn: (arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T5, callback: (err?: Error | null) => void) => void): (arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T5) => Promise<void>;
     export function promisify(fn: Function): Function;
     export namespace promisify {
         const custom: symbol;
@@ -5696,7 +5831,7 @@ declare module "util" {
 }
 
 declare module "assert" {
-    function internal(value: any, message?: string): void;
+    function internal(value: any, message?: string | Error): void;
     namespace internal {
         export class AssertionError implements Error {
             name: string;
@@ -5705,34 +5840,30 @@ declare module "assert" {
             expected: any;
             operator: string;
             generatedMessage: boolean;
+            code: 'ERR_ASSERTION';
 
             constructor(options?: {
                 message?: string; actual?: any; expected?: any;
-                operator?: string; stackStartFunction?: Function
+                operator?: string; stackStartFn?: Function
             });
         }
 
-        export function fail(message: string): never;
-        export function fail(actual: any, expected: any, message?: string, operator?: string): never;
-        export function ok(value: any, message?: string): void;
-        export function equal(actual: any, expected: any, message?: string): void;
-        export function notEqual(actual: any, expected: any, message?: string): void;
-        export function deepEqual(actual: any, expected: any, message?: string): void;
-        export function notDeepEqual(acutal: any, expected: any, message?: string): void;
-        export function strictEqual(actual: any, expected: any, message?: string): void;
-        export function notStrictEqual(actual: any, expected: any, message?: string): void;
-        export function deepStrictEqual(actual: any, expected: any, message?: string): void;
-        export function notDeepStrictEqual(actual: any, expected: any, message?: string): void;
+        export function fail(message?: string | Error): never;
+        export function fail(actual: any, expected: any, message?: string | Error, operator?: string, stackStartFn?: Function): never;
+        export function ok(value: any, message?: string | Error): void;
+        export function equal(actual: any, expected: any, message?: string | Error): void;
+        export function notEqual(actual: any, expected: any, message?: string | Error): void;
+        export function deepEqual(actual: any, expected: any, message?: string | Error): void;
+        export function notDeepEqual(actual: any, expected: any, message?: string | Error): void;
+        export function strictEqual(actual: any, expected: any, message?: string | Error): void;
+        export function notStrictEqual(actual: any, expected: any, message?: string | Error): void;
+        export function deepStrictEqual(actual: any, expected: any, message?: string | Error): void;
+        export function notDeepStrictEqual(actual: any, expected: any, message?: string | Error): void;
 
-        export function throws(block: Function, message?: string): void;
-        export function throws(block: Function, error: Function, message?: string): void;
-        export function throws(block: Function, error: RegExp, message?: string): void;
-        export function throws(block: Function, error: (err: any) => boolean, message?: string): void;
-
-        export function doesNotThrow(block: Function, message?: string): void;
-        export function doesNotThrow(block: Function, error: Function, message?: string): void;
-        export function doesNotThrow(block: Function, error: RegExp, message?: string): void;
-        export function doesNotThrow(block: Function, error: (err: any) => boolean, message?: string): void;
+        export function throws(block: Function, message?: string | Error): void;
+        export function throws(block: Function, error: RegExp | Function, message?: string | Error): void;
+        export function doesNotThrow(block: Function, message?: string | Error): void;
+        export function doesNotThrow(block: Function, error: RegExp | Function, message?: string | Error): void;
 
         export function ifError(value: any): void;
     }
@@ -6748,7 +6879,8 @@ declare module "http2" {
         prependOnceListener(event: "unknownProtocol", listener: (socket: tls.TLSSocket) => void): this;
     }
 
-    export interface Http2ServerRequest extends stream.Readable {
+    export class Http2ServerRequest extends stream.Readable {
+        private constructor();
         headers: IncomingHttpHeaders;
         httpVersion: string;
         method: string;
@@ -6779,7 +6911,8 @@ declare module "http2" {
         prependOnceListener(event: "aborted", listener: (hadError: boolean, code: number) => void): this;
     }
 
-    export interface Http2ServerResponse extends events.EventEmitter {
+    export class Http2ServerResponse extends events.EventEmitter {
+        private constructor();
         addTrailers(trailers: OutgoingHttpHeaders): void;
         connection: net.Socket | tls.TLSSocket;
         end(callback?: () => void): void;

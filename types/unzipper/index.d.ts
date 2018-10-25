@@ -1,12 +1,13 @@
-// Type definitions for unzipper 0.8
+// Type definitions for unzipper 0.9
 // Project: https://github.com/ZJONSSON/node-unzipper#readme
 // Definitions by: s73obrien <https://github.com/s73obrien>
 //                 Nate <https://github.com/natemara>
+//                 Bart <https://github.com/bartje321>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 2.2
 /// <reference types="node" />
 
-import { Readable, Stream, PassThrough, Duplex } from "stream";
+import { Readable, Stream, PassThrough, Duplex, Transform } from "stream";
 import { ClientRequest, RequestOptions } from "http";
 
 export interface PullStream extends Duplex {
@@ -15,7 +16,9 @@ export interface PullStream extends Duplex {
 }
 
 export interface Entry extends PassThrough {
-    autodrain(): Promise<void>;
+    autodrain(): Transform & {
+        promise(): Promise<void>;
+    };
     buffer(): Promise<Buffer>;
     path: string;
 
@@ -49,19 +52,20 @@ export interface Entry extends PassThrough {
 export function unzip(
     source: {
         stream: Readable;
-        size: Promise<number>;
+        size: () => Promise<number>;
     },
     offset: number,
     _password: string
 ): Entry;
 
 export namespace Open {
-    function file(filename: string): CentralDirectory;
+    function buffer(data: Buffer): Promise<CentralDirectory>;
+    function file(filename: string): Promise<CentralDirectory>;
     function url(
         request: ClientRequest,
         opt: string | RequestOptions
-    ): CentralDirectory;
-    function s3(client: any, params: any): CentralDirectory;
+    ): Promise<CentralDirectory>;
+    function s3(client: any, params: any): Promise<CentralDirectory>;
 }
 
 export function BufferStream(entry: Entry): Promise<Buffer>;
@@ -96,8 +100,8 @@ export interface CentralDirectory {
             offsetToLocalFileHeader: number;
             path: string;
             comment: string;
-            stream: Entry;
-            buffer: Promise<Buffer>;
+            stream: (password?: string) => Entry;
+            buffer: (password?: string) => Promise<Buffer>;
         }
     ];
 }

@@ -186,6 +186,7 @@ declare namespace Chai {
         property: Property;
         members: Members;
         ordered: Ordered;
+        nested: Nested;
     }
 
     interface Ordered {
@@ -194,6 +195,7 @@ declare namespace Chai {
 
     interface KeyFilter {
         keys: Keys;
+        members: Members;
     }
 
     interface Equal {
@@ -353,7 +355,7 @@ declare namespace Chai {
         notStrictEqual<T>(actual: T, expected: T, message?: string): void;
 
         /**
-         * Asserts that actual is deeply equal to expected.
+         * Asserts that actual is deeply equal (==) to expected.
          *
          * @type T   Type of the objects.
          * @param actual   Actual value.
@@ -363,7 +365,7 @@ declare namespace Chai {
         deepEqual<T>(actual: T, expected: T, message?: string): void;
 
         /**
-         * Asserts that actual is not deeply equal to expected.
+         * Asserts that actual is not deeply equal (==) to expected.
          *
          * @type T   Type of the objects.
          * @param actual   Actual value.
@@ -371,6 +373,16 @@ declare namespace Chai {
          * @param message   Message to display on error.
          */
         notDeepEqual<T>(actual: T, expected: T, message?: string): void;
+
+        /**
+         * Asserts that actual is deeply strict equal (===) to expected.
+         *
+         * @type T   Type of the objects.
+         * @param actual   Actual value.
+         * @param expected   Potential expected value.
+         * @param message   Message to display on error.
+         */
+        deepStrictEqual<T>(actual: T, expected: T, message?: string): void;
 
         /**
          * Asserts valueToCheck is strictly greater than (>) valueToBeAbove.

@@ -11,7 +11,7 @@ app.use(session({
   secret: 'keyboard cat',
   name: 'connect.sid',
   store: new session.MemoryStore(),
-  cookie: { path: '/', httpOnly: true, secure: false },
+  cookie: { path: '/', httpOnly: true, secure: false, sameSite: true },
   genid: (req: express.Request): string => '',
   rolling: false,
   resave: true,
@@ -54,7 +54,7 @@ class MyStore extends session.Store {
     callback(null, sessionData);
   }
 
-  set = (sid: string, session: Express.Session, callback?: (err?: any) => void): void => {
+  set = (sid: string, session: Express.SessionData, callback?: (err?: any) => void): void => {
     this.sessions[sid] = JSON.stringify(session);
     if (callback) callback();
   }

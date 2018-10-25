@@ -75,7 +75,7 @@ declare const got: got.GotFn &
         CancelError: typeof CancelError;
     };
 
-interface InternalRequestOptions extends http.RequestOptions {
+interface InternalRequestOptions extends https.RequestOptions {
     // Redeclare options with `any` type for allow specify types incompatible with http.RequestOptions.
     timeout?: any;
     agent?: any;
@@ -93,13 +93,14 @@ declare namespace got {
 
     type GotStreamFn = (url: GotUrl, options?: GotOptions<string | null>) => GotEmitter & nodeStream.Duplex;
 
-    type GotUrl = string | http.RequestOptions | Url | URL;
+    type GotUrl = string | https.RequestOptions | Url | URL;
 
     interface GotBodyOptions<E extends string | null> extends GotOptions<E> {
         body?: string | Buffer | nodeStream.Readable;
     }
 
     interface GotJSONOptions extends GotOptions<string | null> {
+        // Body must be an object or array. See https://github.com/sindresorhus/got/issues/511
         body?: object;
         form?: boolean;
         json: true;

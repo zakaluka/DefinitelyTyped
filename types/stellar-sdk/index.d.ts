@@ -1,14 +1,16 @@
-// Type definitions for stellar-sdk 0.8
+// Type definitions for stellar-sdk 0.10
 // Project: https://github.com/stellar/js-stellar-sdk
 // Definitions by: Carl Foster <https://github.com/carl-foster>
 //                 Triston Jones <https://github.com/tristonj>
+//                 Paul Selden <https://github.com/pselden>
+//                 Max Bause <https://github.com/maxbause>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 2.4
 
 /// <reference types="node" />
 
 export class Account {
-    constructor(accountId: string, sequence: string | number)
+    constructor(accountId: string, sequence: string)
     accountId(): string;
     sequenceNumber(): string;
     incrementSequenceNumber(): void;
@@ -20,7 +22,7 @@ export class CallBuilder<T extends Record> {
     cursor(cursor: string): this;
     limit(limit: number): this;
     order(direction: 'asc' | 'desc'): this;
-    stream(options?: { onmessage?: () => void, onerror?: () => void }): () => void;
+    stream(options?: { onmessage?: (record: T) => void, onerror?: (error: Error) => void }): () => void;
 }
 
 export interface CollectionPage<T extends Record> {
@@ -96,10 +98,10 @@ export interface AccountRecord extends Record {
         weight: number
     }
     >;
-    data: {
+    data: (options: {value: string}) => Promise<{value: string}>;
+    data_attr: {
         [key: string]: string
     };
-
     effects: CallCollectionFunction<EffectRecord>;
     offers: CallCollectionFunction<OfferRecord>;
     operations: CallCollectionFunction<OperationRecord>;
@@ -296,6 +298,11 @@ export interface ManageDataOperationRecord extends BaseOperationRecord {
     value: string;
 }
 
+export interface BumpSequenceOperationRecord extends BaseOperationRecord {
+    type: 'bump_sequence';
+    bump_to: string;
+}
+
 export type OperationRecord = CreateAccountOperationRecord
     | PaymentOperationRecord
     | PathPaymentOperationRecord
@@ -306,7 +313,8 @@ export type OperationRecord = CreateAccountOperationRecord
     | AllowTrustOperationRecord
     | AccountMergeOperationRecord
     | InflationOperationRecord
-    | ManageDataOperationRecord;
+    | ManageDataOperationRecord
+    | BumpSequenceOperationRecord;
 
 export interface OrderbookRecord extends Record {
     bids: Array<{ price_r: {}, price: number, amount: string }>;
@@ -429,7 +437,8 @@ export class AccountResponse implements AccountRecord {
             weight: number
         }
         >;
-    data: {
+    data: (options: {value: string}) => Promise<{value: string}>;
+    data_attr: {
         [key: string]: string
     };
 
@@ -505,15 +514,21 @@ export class Memo {
     static return(hash: string): Memo;
     static text(text: string): Memo;
 
-    constructor(type: 'MemoNone')
-    constructor(type: 'MemoID' | 'MemoText', value: string)
-    constructor(type: 'MemoHash' | 'MemoReturn', value: Buffer)
+    constructor(type: 'none');
+    constructor(type: 'id' | 'text' | 'hash' | 'return', value: string)
+    constructor(type: 'hash' | 'return', value: Buffer)
 
-    type: 'MemoNone' | 'MemoID' | 'MemoText' | 'MemoHash' | 'MemoReturn';
+    type: string;
     value: null | string | Buffer;
 
     toXDRObject(): xdr.Memo;
 }
+
+export const MemoNone = 'none';
+export const MemoID = 'id';
+export const MemoText = 'text';
+export const MemoHash = 'hash';
+export const MemoReturn = 'return';
 
 export enum Networks {
     PUBLIC = 'Public Global Stellar Network ; September 2015',
@@ -545,7 +560,8 @@ export type TransactionOperation =
     | Operation.AllowTrust
     | Operation.AccountMerge
     | Operation.Inflation
-    | Operation.ManageData;
+    | Operation.ManageData
+    | Operation.BumpSequence;
 
 export enum OperationType {
     createAccount = 'createAccount',
@@ -559,6 +575,7 @@ export enum OperationType {
     accountMerge = 'accountMerge',
     inflation = 'inflation',
     manageData = 'manageData',
+    bumpSequence = 'bumpSequence',
 }
 
 export namespace Operation {
@@ -737,6 +754,16 @@ export namespace Operation {
     }
     function setOptions(options: SetOptionsOptions): xdr.Operation<SetOptions>;
 
+    interface BumpSequence extends Operation {
+        type: OperationType.bumpSequence;
+        bumpTo: string;
+    }
+    interface BumpSequenceOptions {
+        bumpTo: string;
+        source?: string;
+    }
+    function bumpSequence(options: BumpSequenceOptions): xdr.Operation<BumpSequence>;
+
     function fromXDRObject<T extends Operation>(xdrOperation: xdr.Operation<T>): T;
 }
 
@@ -817,6 +844,7 @@ export class Transaction {
     fee: number;
     source: string;
     memo: Memo;
+    signatures: xdr.DecoratedSignature[];
 }
 
 export class TransactionBuilder {
@@ -854,18 +882,40 @@ export class Keypair {
 
     publicKey(): string;
     secret(): string;
+    rawPublicKey(): Buffer;
     rawSecretKey(): Buffer;
     canSign(): boolean;
     sign(data: Buffer): Buffer;
+    signatureHint(): xdr.SignatureHint;
     verify(data: Buffer, signature: Buffer): boolean;
 }
 
 export namespace xdr {
     class XDRStruct {
+        static fromXDR(xdr: Buffer): XDRStruct;
+
         toXDR(): Buffer;
+        toXDR(encoding: string): string;
     }
     class Operation<T extends Operation.Operation> extends XDRStruct { }
     class Asset extends XDRStruct { }
     class Memo extends XDRStruct { }
     class TransactionEnvelope extends XDRStruct { }
+    class DecoratedSignature extends XDRStruct {
+      constructor(keys: { hint: SignatureHint, signature: Signature })
+
+      hint(): SignatureHint;
+      signature(): Buffer;
+    }
+    type SignatureHint = Buffer;
+    type Signature = Buffer;
+}
+
+export namespace StellarTomlResolver {
+    interface StellarTomlResolveOptions {
+        allowHttp?: boolean;
+        timeout?: number;
+    }
+
+    function resolve(domain: string, options?: StellarTomlResolveOptions): Promise<{ [key: string]: any }>;
 }
