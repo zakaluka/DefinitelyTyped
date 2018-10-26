@@ -93,7 +93,7 @@ declare namespace Kinto {
         // Public Methods
         applyHook(hookName?: any, payload?: any): any;
         cleanLocalFields(record?: Object): Object;
-        clear(): Promise<{ data?: any[]; permissions?: {}; }>;
+        clear(): Promise<{ data: any[]; permissions: {}; }>;
         create(record?: Object, options?: { useRecordId?: boolean; synced?: boolean; }): Promise<any>;
         delete(id?: string, options?: { virtual?: boolean; }): Promise<any>;
         deleteAll(): Promise<any>;
@@ -103,7 +103,7 @@ declare namespace Kinto {
         get(id?: string, options?: { includeDeleted?: boolean; }): Promise<any>;
         getAny(id?: string): Promise<any>;
         importChanges(syncResultObject?: SyncResultObject, decodedChanges?: any[], strategy?: string): Promise<any>;
-        list(params?: { filters?: {}, order?: string }, options?: { includeDeleted?: boolean; }): Promise<{ data?: any; permissions?: {}; }>;
+        list(params?: { filters?: {}, order?: string }, options?: { includeDeleted?: boolean; }): Promise<{ data: any; permissions: {}; }>;
         loadDump(records?: any[]): Promise<any>;
         pullChanges(client?: Collection, syncResultObject?: SyncResultObject, options?: { strategy?: string, lastModified?: Number, headers?: {}, exclude?: boolean, retry?: number }): Promise<any>;
         pushChanges(client?: Collection, syncResultObject?: SyncResultObject, changes?: { toDelete?: any[], toSync?: any[] }, options?: { strategy?: string, headers?: {}, retry?: number }): Promise<any>;
@@ -123,15 +123,15 @@ declare namespace Kinto {
         collection: any;
 
         // Public Methods
-        create(record?: Object): { data?: Object; permissions?: {}; };
-        delete(id?: string, options?: { virtual?: boolean; }): { data?: any; permissions?: {}; };
-        deleteAll(ids?: string[]): { data?: any, permissions?: {} };
-        deleteAny(id?: string): { data?: any; deleted?: boolean; permissions?: {}; };
+        create(record?: Object): { data: Object; permissions: {}; };
+        delete(id?: string, options?: { virtual?: boolean; }): { data: any; permissions: {}; };
+        deleteAll(ids?: string[]): { data: any, permissions: {} };
+        deleteAny(id?: string): { data: any; deleted: boolean; permissions: {}; };
         emitEvents(): void;
         get(id?: string, options?: { includeDeleted?: boolean; }): Object;
-        getAny(id?: string): { data?: any; permissions?: {}; };
+        getAny(id?: string): { data: any; permissions: {}; };
         update(record?: Object, options?: { synced?: boolean; patch?: boolean; }): { data: any; oldRecord: any; permissions: {}; };
-        upsert(record?: Object): { data?: any; oldRecord?: any; permissions?: {}; };
+        upsert(record?: Object): { data: any; oldRecord: any; permissions: {}; };
     }
 
     export class Kinto extends KintoBase {
@@ -148,10 +148,10 @@ declare namespace Kinto {
         static readonly syncStrategy: { CLIENT_WINS: string; SERVER_WINS: string; MANUAL: string; };
 
         // Public Constructor
-        constructor(options: { remote: string, bucket: string, events: any, adapter: adapters.BaseAdapter, adapterOptions: Object, dbPrefix: string, headers: Object, retry: number, requestMode: string, timeout: Number });
+        constructor(options?: { remote?: string, bucket?: string, events?: any, adapter?: adapters.BaseAdapter, adapterOptions?: Object, dbPrefix?: string, headers?: Object, retry?: number, requestMode?: string, timeout?: Number });
 
         // Public Methods
-        collection(collName: string, options: { idSchema: Object, remoteTransformers: any[], hooks: any[], localFields: any[] }): Collection;
+        collection(collName?: string, options?: { idSchema?: Object, remoteTransformers?: any[], hooks?: any[], localFields?: any[] }): Collection;
 
         // Public Members
         api: any;
@@ -177,5 +177,5 @@ declare namespace Kinto {
     export function filterObjects(filters?: Object, list?: any[]): Boolean[];
     export function omitKeys(obj?: Object, keys?: any[]): Object;
     export function sortObjects(order?: string, list?: any[]): any[];
-    export function waterfall(fns: any[], init: any): Promise<any>;
+    export function waterfall(fns?: any[], init?: any): Promise<any>;
 }
