@@ -1,4 +1,4 @@
-// Type definitions for kinto.js v11.1.2 
+// Type definitions for kinto.js v11.2.2
 // Project: https://github.com/Kinto/kinto.js
 // Definitions by: Sachin Shah <https://github.com/zakaluka>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
@@ -6,38 +6,66 @@
 declare namespace Kinto {
     export namespace adapters {
         export class BaseAdapter {
+			/**
+			 * Public Methods
+			 */
             clear(): Promise<any>;
-            execute(callback: Function, options: { preload: any[] }): Promise<any>;
-            get(id: string): Promise<any>;
+            execute(callback?: Function, options?: { preload?: any[] }): Promise<any>;
+            get(id?: string): Promise<any>;
             getLastModified(): Promise<any>;
-            list(params?: { filters: {}; order: string; }): Promise<any>;
-            loadDump(records: any): Promise<any>;
-            saveLastModified(lastModified: Number): Promise<any>;
+            list(params?: { filters?: {}; order?: string; }): Promise<any>;
+            loadDump(records?: any): Promise<any>;
+            open(): Promise<any>;
+            prepare(mode?: string, name?: string | null): Object
+            saveLastModified(lastModified?: Number): Promise<any>;
         }
 
         export class IDB extends BaseAdapter {
+			/**
+			 * Public Constructors
+			 */
+            constructor(dbname?: string, options?: { dbname?: string });
+
+			/**
+			 * Public Members
+			 */
+
             dbname: string;
-            constructor(dbname: string);
+            storeName: string;
+
+			/**
+			 * Public Methods
+			 */
             clear(): Promise<any>;
             close(): Promise<any>;
-            execute(callback: Function, options: { preload: any[] }): Promise<any>;
-            get(id: string): Promise<any>;
+            execute(callback?: Function, options?: { preload?: any[] }): Promise<any>;
+            get(id?: string): Promise<any>;
             getLastModified(): Promise<any>;
-            list(params?: { filters: {}; }): Promise<any>;
-            loadDump(records: any[]): Promise<any>;
+            list(params?: { filters?: {}; order?: string }): Promise<any>;
+            loadDump(records?: any[]): Promise<any>;
             open(): Promise<any>;
-            prepare(mode: string, name: string): { transaction: any; store: any; };
-            saveLastModified(lastModified: Number): Promise<any>;
+            prepare(mode?: string, name?: string | null): { transaction: any; store: any; };
+            saveLastModified(lastModified?: Number): Promise<any>;
         }
 
-        export function createListRequest(store: any /*IDBObjectStore*/, indexField: string, value: any, filters: Object, done: Function): any /* IDBRequest*/;
-        export function findIndexedField(filters: Object): string;
-        export function transactionProxy(store: any /* IDBObjectStore*/, preloaded: any[]): Object;
+        /**
+         * Public methods
+         */
+        export function createListRequest(store?: IDBStore, indexField?: string | undefined, value?: any, filters?: Object, done?: Function): IDBRequest;
+        export function findIndexedField(filters?: Object): string | undefined;
+        export function transactionProxy(store?: IDBStore, preloaded?: any[]): Object;
+
+        /**
+         * Public fields
+         */
         export const INDEXED_FIELDS: string[];
         export const cursorHandlers: Object;
     }
 
     export class SyncResultObject {
+        /**
+         * Static Public Members
+         */
         static readonly defaults: {
             ok: boolean;
             lastModified: Number;
@@ -51,10 +79,21 @@ declare namespace Kinto {
             resolved: any[];
         };
 
+        /**
+         * Public Constructors
+         */
         constructor();
+
+        /**
+         * Public Members
+         */
         ok: boolean;
-        add(type: string, entries: any[]): SyncResultObject;
-        reset(type: string): SyncResultObject;
+
+        /**
+         * Public Members
+         */
+        add(type?: string, entries?: any[]): SyncResultObject;
+        reset(type?: string): SyncResultObject;
     }
 
     export class Collection {
